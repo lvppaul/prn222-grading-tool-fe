@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import BaseLayout from "../../../components/BaseLayout";
 // correct path: from src/features/auth/pages to src/assets/images is three levels up
 import loginBg from "../../../assets/images/login_background.png";
+import logo from "../../../assets/images/logo_grading_tool.png";
 
 export default function LoginPage() {
   const { login, loading } = useAuth();
@@ -22,7 +23,13 @@ export default function LoginPage() {
   };
 
   return (
-    <BaseLayout title="Sign in" backgroundImage={loginBg} cardWidth={560}>
+    <BaseLayout
+      title="Sign in"
+      backgroundImage={loginBg}
+      cardWidth={560}
+      topLeftSrc={logo}
+      topLeftAlt="Grading Tool"
+    >
       <Form
         layout="vertical"
         onFinish={onFinish}
