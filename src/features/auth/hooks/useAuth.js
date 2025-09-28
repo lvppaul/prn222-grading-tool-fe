@@ -28,8 +28,13 @@ export function useAuth() {
     }
   };
 
-  const logout = () => {
-    authService.logout();
+  const logout = async () => {
+    setLoading(true);
+    try {
+      await authService.logout();
+    } finally {
+      setLoading(false);
+    }
   };
 
   return { login, register, logout, loading };

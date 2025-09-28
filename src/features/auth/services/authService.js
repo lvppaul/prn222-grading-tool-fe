@@ -53,11 +53,23 @@ export const authService = {
     return payload;
   },
 
-  logout: () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("role");
-    window.location.href = "/auth/login";
+  logout: async () => {
+    // Call backend to invalidate tokens
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      const refreshToken = localStorage.getItem("refreshToken");
+      await axiosClient.post("/Authentication/logout", {
+        accessToken,
+        refreshToken,
+      });
+    } catch {
+      // ignore network errors, still clear local storage
+    } finally {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("role");
+      window.location.href = "/auth/login";
+    }
   },
 };
 

@@ -1,78 +1,101 @@
-import { useState } from "react";
+import { Card, Form, Input, Button, Select, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
+const { Option } = Select;
+
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { register, loading } = useAuth();
   const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [roleId, setRoleId] = useState(2);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const payload = await register({
-        name,
-        email,
-        password,
-        confirmPassword,
-        roleId,
-      });
-
-      if (payload?.success) {
-        // Registered and logged in — role should be stored by authService
-        const role = localStorage.getItem("role");
-        if (role === "examiner") navigate("/examiner");
-        else if (role === "lecturer") navigate("/lecturer");
-        else navigate("/");
-      } else {
-        alert(payload?.message || "Register failed!");
-      }
-    } catch {
-      alert("Register failed!");
+  const onFinish = async (values) => {
+    const payload = await register(values);
+    if (payload?.success) {
+      const role = localStorage.getItem("role");
+      if (role === "examiner") navigate("/examiner");
+      else if (role === "lecturer") navigate("/lecturer");
+      else navigate("/");
+    } else {
+      message.error(payload?.message || "Register failed");
     }
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-        <select
-          value={roleId}
-          onChange={(e) => setRoleId(Number(e.target.value))}
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#f5f7fa",
+      }}
+    >
+      <Card style={{ width: 480 }}>
+        <h2 style={{ textAlign: "center" }}>Register</h2>
+        <Form
+          layout="vertical"
+          onFinish={onFinish}
+          initialValues={{ roleId: 2 }}
         >
-          <option value={1}>Examiner</option>
-          <option value={2}>Lecturer</option>
-        </select>
-        <button type="submit">Register</button>
-      </form>
+          <Form.Item
+            label="Name"
+            name="name"
+            rules={[{ required: true, message: "Please input your name!" }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[{ required: true, message: "Please input your email!" }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[{ required: true, message: "Please input your password!" }]}
+          >
+            <Input.Password />
+          </Form.Item>
+
+          <Form.Item
+            label="Confirm Password"
+            name="confirmPassword"
+            dependencies={["password"]}
+            rules={[
+              { required: true, message: "Please confirm your password!" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error("The two passwords do not match!")
+                  );
+                },
+              }),
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+
+          <Form.Item label="Role" name="roleId">
+            <Select>
+              <Option value={1}>Examiner</Option>
+              <Option value={2}>Lecturer</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block loading={loading}>
+              Register
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 }
