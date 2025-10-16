@@ -7,7 +7,7 @@ export const authService = {
     const payload = res.data;
     const accessToken = payload?.data?.accessToken;
     const refreshToken = payload?.data?.refreshToken;
-
+    console.log("Login response payload:", payload);
     if (accessToken) {
       localStorage.setItem("accessToken", accessToken);
 
