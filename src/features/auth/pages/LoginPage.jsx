@@ -11,8 +11,11 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const onFinish = async (values) => {
-    const success = await login(values.email, values.password);
-    if (success) {
+    console.log("oke trước khi login");
+
+    const res = await login(values.email, values.password);
+    console.log("oke sau khi login");
+    if (res.success) {
       const role = localStorage.getItem("role");
       if (role === "examiner") navigate("/examiner");
       else if (role === "lecturer") navigate("/lecturer");
