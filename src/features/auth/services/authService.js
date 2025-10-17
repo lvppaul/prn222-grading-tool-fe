@@ -1,56 +1,49 @@
 import axiosClient from "../../../lib/axios";
+import { setTokens, clearTokens, getRoleFromToken } from "../utils/authUtils";
 
 export const authService = {
   login: async (data) => {
-    // New API returns: { success, message, data: { accessToken, refreshToken } }
+    console.log("login data", data);
+    // API can return tokens under `data` or `payload` depending on backend
     const res = await axiosClient.post("/Authentication/login", data);
-    const payload = res.data;
-    const accessToken = payload?.data?.accessToken;
-    const refreshToken = payload?.data?.refreshToken;
-    console.log("Login response payload:", payload);
-    if (accessToken) {
-      localStorage.setItem("accessToken", accessToken);
+    const body = res.data;
+    // prefer body.payload, fallback to body.data
+    const tokenContainer = body?.payload || body?.data || {};
+    const accessToken = tokenContainer?.accessToken;
+    const refreshToken = tokenContainer?.refreshToken;
 
-      // Try to decode role from JWT and store it for role-based routing
-      try {
-        const role = getRoleFromJwt(accessToken);
-        if (role) {
-          localStorage.setItem("role", role);
-        }
-      } catch {
-        // ignore decode errors
-      }
+    // persist tokens using helper
+    setTokens({ accessToken, refreshToken });
+
+    // store role if present in token
+    try {
+      const role = getRoleFromToken();
+      if (role) localStorage.setItem("role", role);
+    } catch {
+      // ignore
     }
 
-    if (refreshToken) {
-      localStorage.setItem("refreshToken", refreshToken);
-    }
-
-    return payload;
+    return body;
   },
 
   register: async (data) => {
-    // API returns same shape as login: { success, message, data: { accessToken, refreshToken } }
+    console.log("register data", data);
     const res = await axiosClient.post("/Authentication/register", data);
-    const payload = res.data;
-    const accessToken = payload?.data?.accessToken;
-    const refreshToken = payload?.data?.refreshToken;
+    const body = res.data;
+    const tokenContainer = body?.payload || body?.data || {};
+    const accessToken = tokenContainer?.accessToken;
+    const refreshToken = tokenContainer?.refreshToken;
 
-    if (accessToken) {
-      localStorage.setItem("accessToken", accessToken);
-      try {
-        const role = getRoleFromJwt(accessToken);
-        if (role) localStorage.setItem("role", role);
-      } catch {
-        // ignore
-      }
+    setTokens({ accessToken, refreshToken });
+
+    try {
+      const role = getRoleFromToken();
+      if (role) localStorage.setItem("role", role);
+    } catch {
+      // ignore
     }
 
-    if (refreshToken) {
-      localStorage.setItem("refreshToken", refreshToken);
-    }
-
-    return payload;
+    return body;
   },
 
   logout: async () => {
@@ -65,47 +58,10 @@ export const authService = {
     } catch {
       // ignore network errors, still clear local storage
     } finally {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("role");
+      clearTokens();
       window.location.href = "/auth/login";
     }
   },
 };
 
-// Helper: decode JWT payload and extract role from common claim keys
-function getRoleFromJwt(token) {
-  if (!token) return null;
-  const parts = token.split(".");
-  if (parts.length < 2) return null;
-  const payload = parts[1];
-  // base64url -> base64
-  const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-  // Add padding
-  const pad = base64.length % 4;
-  const padded =
-    base64 + (pad === 2 ? "==" : pad === 3 ? "=" : pad === 1 ? "===" : "");
-  const json = atob(padded);
-  const obj = JSON.parse(json);
-
-  // Common role claim names
-  const roleKeys = [
-    "role",
-    "roles",
-    "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
-    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role",
-  ];
-
-  for (const key of roleKeys) {
-    if (obj[key]) return obj[key];
-  }
-
-  // fallback: check 'claims' object
-  if (obj.claims) {
-    for (const key of roleKeys) {
-      if (obj.claims[key]) return obj.claims[key];
-    }
-  }
-
-  return null;
-}
+// read role from current stored token is handled in `authUtils`
