@@ -7,6 +7,8 @@ import ExaminerDashboard from "./features/exams/pages/ExaminerDashboard";
 import LecturerDashboard from "./features/grading/pages/LecturerDashboard";
 import StatisticsPage from "./features/statistics/pages/StatisticsPage";
 import Layout from "./components/Layout/Layout";
+import LecturerLayout from "./components/Layout/LecturerLayout";
+import GradingPage from "./features/grading/pages/GradingPage";
 
 export default function App() {
   return (
@@ -31,13 +33,15 @@ export default function App() {
         <Route
           path="/lecturer"
           element={
-            <RoleBasedRoute allowedRoles={["lecturer"]}>
-              <Layout>
-                <LecturerDashboard />
-              </Layout>
-            </RoleBasedRoute>
+            // <RoleBasedRoute allowedRoles={["lecturer"]}>
+                <LecturerLayout />
+            // </RoleBasedRoute>
           }
-        />
+        >
+          <Route index element={<LecturerDashboard />} />
+          <Route path="grading" element={<GradingPage />} />
+        </Route>
+        
         <Route
           path="/statistics"
           element={
