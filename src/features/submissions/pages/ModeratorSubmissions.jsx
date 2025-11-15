@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from "react";
 import { Table, Tag, Button, Input, Select, Space, Card } from "antd";
 import { EyeOutlined, SearchOutlined } from "@ant-design/icons";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FakeSubmissions } from "./FakeSubmissions";
 
-
 export default function ModeratorSubmissions() {
+  const navigate = useNavigate();
   const { Option } = Select;
   const { semester, examId } = useParams();
 
@@ -32,13 +32,12 @@ export default function ModeratorSubmissions() {
   const [gradeFilter, setGradeFilter] = useState("All");
   const [searchText, setSearchText] = useState("");
 
-  // ===== FILTER LOGIC =====
+  // Filtered dataset
   const filteredData = useMemo(() => {
     return FakeSubmissions.filter((row) => {
       const matchExam = row.examId.toString() === examId;
       const matchSemester = row.semester === semester;
 
-      // Only show rows from the selected exam + semester
       if (!matchExam || !matchSemester) return false;
 
       const statusMatch = statusFilter === "All" || row.status === statusFilter;
@@ -53,9 +52,8 @@ export default function ModeratorSubmissions() {
 
       return statusMatch && gradeMatch && searchMatch;
     });
-  }, [FakeSubmissions, examId, semester, statusFilter, gradeFilter, searchText]);
+  }, [examId, semester, statusFilter, gradeFilter, searchText]);
 
-  // TABLE COLUMNS
   const columns = [
     { title: "Submission ID", dataIndex: "id", sorter: (a, b) => a.id - b.id },
     { title: "Student Code", dataIndex: "studentCode" },
@@ -66,7 +64,11 @@ export default function ModeratorSubmissions() {
       dataIndex: "grade",
       sorter: (a, b) => a.grade - b.grade,
       render: (grade) =>
-        grade === 0 ? <Tag color="gray">—</Tag> : <Tag color={gradeColor(grade)}>{grade}</Tag>,
+        grade === 0 ? (
+          <Tag color="gray">—</Tag>
+        ) : (
+          <Tag color={gradeColor(grade)}>{grade}</Tag>
+        ),
     },
 
     {
@@ -82,7 +84,11 @@ export default function ModeratorSubmissions() {
         <Button
           type="primary"
           icon={<EyeOutlined />}
-          onClick={() => (window.location.href = `/moderator/submission/${record.id}`)}
+          onClick={() =>
+            navigate(
+              `/moderator/submissions/${semester}/${examId}/${record.id}`
+            )
+          }
         >
           View
         </Button>
@@ -92,7 +98,6 @@ export default function ModeratorSubmissions() {
 
   return (
     <div>
-      {/* HEADER */}
       <h1 style={{ marginBottom: 10, fontSize: 26, fontWeight: 600 }}>
         Submissions — {semester} / Exam #{examId}
       </h1>
@@ -111,29 +116,35 @@ export default function ModeratorSubmissions() {
         }}
       >
         <Space size="large" wrap>
-
-          {/* Status filter */}
           <div>
             <span style={{ marginRight: 8 }}>Status:</span>
-            <Select value={statusFilter} style={{ width: 160 }} onChange={setStatusFilter}>
+            <Select
+              value={statusFilter}
+              style={{ width: 160 }}
+              onChange={setStatusFilter}
+            >
               <Option value="All">All</Option>
               {Object.keys(statusColor).map((s) => (
-                <Option key={s} value={s}>{s}</Option>
+                <Option key={s} value={s}>
+                  {s}
+                </Option>
               ))}
             </Select>
           </div>
 
-          {/* Grade filter */}
           <div>
             <span style={{ marginRight: 8 }}>Grade:</span>
-            <Select value={gradeFilter} style={{ width: 160 }} onChange={setGradeFilter}>
+            <Select
+              value={gradeFilter}
+              style={{ width: 160 }}
+              onChange={setGradeFilter}
+            >
               <Option value="All">All</Option>
               <Option value="Graded">Graded Only</Option>
               <Option value="Ungraded">Ungraded Only</Option>
             </Select>
           </div>
 
-          {/* Search */}
           <Input
             placeholder="Search Student Code"
             prefix={<SearchOutlined />}
@@ -141,11 +152,9 @@ export default function ModeratorSubmissions() {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
-
         </Space>
       </Card>
 
-      {/* TABLE */}
       <Table
         columns={columns}
         dataSource={filteredData}

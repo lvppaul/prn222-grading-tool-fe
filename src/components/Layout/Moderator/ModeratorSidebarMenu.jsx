@@ -1,5 +1,5 @@
+import { ConfigProvider, Menu } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Menu } from "antd";
 import {
   DashboardOutlined,
   FileSearchOutlined,
@@ -11,23 +11,35 @@ export default function ModeratorSidebarMenu({ collapsed }) {
   const { pathname } = useLocation();
 
   const items = [
-    { key: "/moderator", icon: <DashboardOutlined />, label: "Dashboard" },
     { key: "/moderator/semesters", icon: <FileSearchOutlined />, label: "Submissions" },
-    { key: "/moderator/settings", icon: <SettingOutlined />, label: "Settings" },
   ];
 
-  // FIX: Better matching so nested routes highlight the menu properly
+  // Correct match for nested routes
   const selectedKey =
-    items.find((i) => pathname.startsWith(i.key))?.key || "/moderator";
+    items.find((i) => pathname === i.key || pathname.startsWith(i.key))?.key ||
+    "/moderator";
 
   return (
-    <Menu
-      theme="dark"
-      mode="inline"
-      selectedKeys={[selectedKey]}
-      items={items}
-      onClick={({ key }) => navigate(key)}
-      style={{ borderInlineEnd: "none", paddingTop: 8 }}
-    />
+    <ConfigProvider
+      theme={{
+        components: {
+          Menu: {
+            darkItemSelectedBg: "#1677ff",      // selected background color
+            darkItemSelectedColor: "#ffffff",   // selected text color
+            darkItemHoverBg: "#165996",         // hover
+          },
+        },
+      }}
+    >
+      <Menu
+        theme="dark"
+        mode="inline"
+        selectedKeys={[selectedKey]}
+        items={items}
+        onClick={({ key }) => navigate(key)}
+        inlineCollapsed={collapsed}
+        style={{ borderInlineEnd: "none", paddingTop: 8 }}
+      />
+    </ConfigProvider>
   );
 }

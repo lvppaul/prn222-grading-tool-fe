@@ -13,6 +13,7 @@ import ModeratorLayout from "./components/Layout/Moderator/ModeratorLayout";
 import ModeratorSubmissions from "./features/submissions/pages/ModeratorSubmissions";
 import SemesterDashboard from "./features/submissions/pages/SemesterDashboard";
 import ExamDashboard from "./features/submissions/pages/ExamDashboard";
+import SubmissionDetail from "./features/submissions/pages/SubmissionDetail";
 
 export default function App() {
   return (
@@ -69,7 +70,7 @@ export default function App() {
             <Route path="semesters" element={<SemesterDashboard />} />
             <Route path="exams/:semester" element={<ExamDashboard />} />
             <Route path="submissions/:semester/:examId" element={<ModeratorSubmissions />} />
-
+            <Route path="submissions/:semester/:examId/:id" element={<SubmissionDetail />} />
         </Route>
 
         {/* Default */}
