@@ -11,6 +11,8 @@ import GradingPage from "./features/grading/pages/GradingPage";
 import LecturerLayout from "./components/Layout/Lecturer/LecturerLayout";
 import ModeratorLayout from "./components/Layout/Moderator/ModeratorLayout";
 import ModeratorSubmissions from "./features/submissions/pages/ModeratorSubmissions";
+import SemesterDashboard from "./features/submissions/pages/SemesterDashboard";
+import ExamDashboard from "./features/submissions/pages/ExamDashboard";
 
 export default function App() {
   return (
@@ -64,7 +66,10 @@ export default function App() {
             // </RoleBasedRoute>
           }
         >
-          <Route path="submissions" element={<ModeratorSubmissions />} />
+            <Route path="semesters" element={<SemesterDashboard />} />
+            <Route path="exams/:semester" element={<ExamDashboard />} />
+            <Route path="submissions/:semester/:examId" element={<ModeratorSubmissions />} />
+
         </Route>
 
         {/* Default */}

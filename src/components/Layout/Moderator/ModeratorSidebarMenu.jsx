@@ -12,13 +12,13 @@ export default function ModeratorSidebarMenu({ collapsed }) {
 
   const items = [
     { key: "/moderator", icon: <DashboardOutlined />, label: "Dashboard" },
-    { key: "/moderator/submissions", icon: <FileSearchOutlined />, label: "Submissions" },
+    { key: "/moderator/semesters", icon: <FileSearchOutlined />, label: "Submissions" },
     { key: "/moderator/settings", icon: <SettingOutlined />, label: "Settings" },
   ];
 
+  // FIX: Better matching so nested routes highlight the menu properly
   const selectedKey =
-    items.find((i) => pathname === i.key || pathname.startsWith(i.key))?.key ||
-    "/moderator";
+    items.find((i) => pathname.startsWith(i.key))?.key || "/moderator";
 
   return (
     <Menu
