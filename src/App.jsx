@@ -9,6 +9,8 @@ import StatisticsPage from "./features/statistics/pages/StatisticsPage";
 import Layout from "./components/Layout/Layout";
 import GradingPage from "./features/grading/pages/GradingPage";
 import LecturerLayout from "./components/Layout/Lecturer/LecturerLayout";
+import ModeratorLayout from "./components/Layout/Moderator/ModeratorLayout";
+import ModeratorSubmissions from "./features/submissions/pages/ModeratorSubmissions";
 
 export default function App() {
   return (
@@ -52,6 +54,18 @@ export default function App() {
             </RoleBasedRoute>
           }
         />
+
+        {/* Moderator */}
+        <Route
+          path="/moderator"
+          element={
+            // <RoleBasedRoute allowedRoles={["moderator"]}>
+                <ModeratorLayout />
+            // </RoleBasedRoute>
+          }
+        >
+          <Route path="submissions" element={<ModeratorSubmissions />} />
+        </Route>
 
         {/* Default */}
         <Route path="/" element={<LoginPage />} />

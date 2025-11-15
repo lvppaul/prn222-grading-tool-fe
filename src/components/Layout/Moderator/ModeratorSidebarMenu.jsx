@@ -2,24 +2,23 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Menu } from "antd";
 import {
   DashboardOutlined,
-  ReadOutlined,
+  FileSearchOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
 
-export default function SidebarMenu({ collapsed }) {
+export default function ModeratorSidebarMenu({ collapsed }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
   const items = [
-    { key: "/lecturer", icon: <DashboardOutlined />, label: "Dashboard" },
-    { key: "/lecturer/grading", icon: <ReadOutlined />, label: "Grading" },
-    { key: "/lecturer/settings", icon: <SettingOutlined />, label: "Settings" },
+    { key: "/moderator", icon: <DashboardOutlined />, label: "Dashboard" },
+    { key: "/moderator/submissions", icon: <FileSearchOutlined />, label: "Submissions" },
+    { key: "/moderator/settings", icon: <SettingOutlined />, label: "Settings" },
   ];
 
-  // determine selected item by prefix match
   const selectedKey =
     items.find((i) => pathname === i.key || pathname.startsWith(i.key))?.key ||
-    "/lecturer";
+    "/moderator";
 
   return (
     <Menu
