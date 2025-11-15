@@ -14,6 +14,7 @@ import ModeratorSubmissions from "./features/submissions/pages/ModeratorSubmissi
 import SemesterDashboard from "./features/submissions/pages/SemesterDashboard";
 import ExamDashboard from "./features/submissions/pages/ExamDashboard";
 import SubmissionDetail from "./features/submissions/pages/SubmissionDetail";
+import ManagerLayout from "./components/Layout/Manager/ManagerLayout";
 
 export default function App() {
   return (
@@ -64,6 +65,21 @@ export default function App() {
           element={
             // <RoleBasedRoute allowedRoles={["moderator"]}>
                 <ModeratorLayout />
+            // </RoleBasedRoute>
+          }
+        >
+            <Route path="semesters" element={<SemesterDashboard />} />
+            <Route path="exams/:semester" element={<ExamDashboard />} />
+            <Route path="submissions/:semester/:examId" element={<ModeratorSubmissions />} />
+            <Route path="submissions/:semester/:examId/:id" element={<SubmissionDetail />} />
+        </Route>
+
+        {/* Manager */}
+        <Route
+          path="/manager"
+          element={
+            // <RoleBasedRoute allowedRoles={["manager"]}>
+                <ManagerLayout />
             // </RoleBasedRoute>
           }
         >
