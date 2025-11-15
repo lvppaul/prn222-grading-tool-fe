@@ -7,8 +7,8 @@ import ExaminerDashboard from "./features/exams/pages/ExaminerDashboard";
 import LecturerDashboard from "./features/grading/pages/LecturerDashboard";
 import StatisticsPage from "./features/statistics/pages/StatisticsPage";
 import Layout from "./components/Layout/Layout";
-import LecturerLayout from "./components/Layout/LecturerLayout";
 import GradingPage from "./features/grading/pages/GradingPage";
+import LecturerLayout from "./components/Layout/Lecturer/LecturerLayout";
 
 export default function App() {
   return (
