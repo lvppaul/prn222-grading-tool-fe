@@ -96,7 +96,7 @@ export default function SubmissionDetail() {
       </Button>
 
       <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>
-        Manager View — Submission #{id}
+        Moderator View — Submission #{id}
       </h1>
 
       <Space direction="vertical" size={24} style={{ width: "100%" }}>
