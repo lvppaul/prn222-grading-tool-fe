@@ -1,46 +1,60 @@
 import React, { useState, useMemo } from "react";
-import { Table, Tag, Button, Input, Select, Space, Card } from "antd";
+import { Table, Tag, Button, Input, Select, Space, Card, message } from "antd";
 import { EyeOutlined, SearchOutlined } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
 import { FakeSubmissions } from "../../submissions/pages/FakeSubmissions";
 
-export default function ModeratorSubmissions() {
+const { Option } = Select;
+
+const statusColor = {
+  Extracted: "blue",
+  Assigned: "gold",
+  Rejected: "red",
+  Graded: "purple",
+  Regraded: "orange",
+  Approved: "green",
+};
+
+const gradeColor = (grade) => {
+  if (grade >= 90) return "green";
+  if (grade >= 75) return "blue";
+  if (grade >= 60) return "orange";
+  return "red";
+};
+
+// Fake lecturer list to assign
+const lecturers = [
+  "Dr. Alice Johnson",
+  "Mr. Bob Smith",
+  "Charlie Brown",
+  "Ms. Emily Lee",
+];
+
+export default function ManagerSubmissions() {
   const navigate = useNavigate();
-  const { Option } = Select;
   const { semester, examId } = useParams();
 
-  // Status color mapping
-  const statusColor = {
-    Extracted: "blue",
-    Assigned: "gold",
-    Rejected: "red",
-    Graded: "purple",
-    Regraded: "orange",
-    Approved: "green",
-  };
-
-  // Grade color mapping
-  const gradeColor = (grade) => {
-    if (grade >= 90) return "green";
-    if (grade >= 75) return "blue";
-    if (grade >= 60) return "orange";
-    return "red";
-  };
-
-  // Toolbar state
   const [statusFilter, setStatusFilter] = useState("All");
   const [gradeFilter, setGradeFilter] = useState("All");
   const [searchText, setSearchText] = useState("");
 
-  // Filtered dataset
+  // Map submissionId -> assigned lecturer
+  const [assignedLecturers, setAssignedLecturers] = useState(() => {
+    const map = {};
+    FakeSubmissions.forEach((s) => {
+      map[s.id] = s.examinerName || "";
+    });
+    return map;
+  });
+
   const filteredData = useMemo(() => {
     return FakeSubmissions.filter((row) => {
       const matchExam = row.examId.toString() === examId;
       const matchSemester = row.semester === semester;
-
       if (!matchExam || !matchSemester) return false;
 
       const statusMatch = statusFilter === "All" || row.status === statusFilter;
+
       const gradeMatch =
         gradeFilter === "All" ||
         (gradeFilter === "Graded" && row.grade > 0) ||
@@ -52,13 +66,33 @@ export default function ModeratorSubmissions() {
 
       return statusMatch && gradeMatch && searchMatch;
     });
-  }, [examId, semester, statusFilter, gradeFilter, searchText]);
+  }, [semester, examId, statusFilter, gradeFilter, searchText]);
+
+  const handleAssign = (recordId) => {
+    const lect = assignedLecturers[recordId];
+    if (!lect) {
+      message.warning("Please select a lecturer before assigning.");
+      return;
+    }
+    // Here you would call API later
+    console.log("Assign lecturer:", lect, "to submission:", recordId);
+    message.success(`Assigned ${lect} to submission #${recordId}`);
+  };
 
   const columns = [
-    { title: "Submission ID", dataIndex: "id", sorter: (a, b) => a.id - b.id },
-    { title: "Student Code", dataIndex: "studentCode" },
-    { title: "Assigned Examiner", dataIndex: "examinerName" },
-
+    {
+      title: "Submission ID",
+      dataIndex: "id",
+      sorter: (a, b) => a.id - b.id,
+    },
+    {
+      title: "Student Code",
+      dataIndex: "studentCode",
+    },
+    {
+      title: "Current Examiner",
+      dataIndex: "examinerName",
+    },
     {
       title: "Grade",
       dataIndex: "grade",
@@ -70,23 +104,44 @@ export default function ModeratorSubmissions() {
           <Tag color={gradeColor(grade)}>{grade}</Tag>
         ),
     },
-
     {
       title: "Status",
       dataIndex: "status",
       sorter: (a, b) => a.status.localeCompare(b.status),
       render: (status) => <Tag color={statusColor[status]}>{status}</Tag>,
     },
-
+    {
+      title: "Assign Lecturer",
+      render: (_, record) => (
+        <Space>
+          <Select
+            style={{ width: 190 }}
+            value={assignedLecturers[record.id]}
+            onChange={(val) =>
+              setAssignedLecturers((prev) => ({ ...prev, [record.id]: val }))
+            }
+            placeholder="Select lecturer"
+          >
+            {lecturers.map((name) => (
+              <Option key={name} value={name}>
+                {name}
+              </Option>
+            ))}
+          </Select>
+          <Button size="small" type="primary" onClick={() => handleAssign(record.id)}>
+            Assign
+          </Button>
+        </Space>
+      ),
+    },
     {
       title: "Action",
       render: (_, record) => (
         <Button
-          type="primary"
           icon={<EyeOutlined />}
           onClick={() =>
             navigate(
-              `/moderator/submissions/${semester}/${examId}/${record.id}`
+              `/manager/submissions/${semester}/${examId}/${record.id}`
             )
           }
         >
@@ -103,7 +158,7 @@ export default function ModeratorSubmissions() {
       </h1>
 
       <p style={{ color: "#777", marginBottom: 20 }}>
-        Showing all submissions for this exam.
+        Assign lecturers to grade each submission.
       </p>
 
       {/* FILTER TOOLBAR */}

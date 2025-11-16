@@ -11,7 +11,7 @@ export default function ManagerSidebarMenu({ collapsed }) {
   const { pathname } = useLocation();
 
   const items = [
-    { key: "/moderator/semesters", icon: <FileSearchOutlined />, label: "Submissions" },
+    { key: "/manager/semesters", icon: <FileSearchOutlined />, label: "Submissions" },
   ];
 
   // Correct match for nested routes

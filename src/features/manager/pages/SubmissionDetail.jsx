@@ -7,6 +7,7 @@ import {
   Tag, 
   List, 
   Modal, 
+  Select, 
   message 
 } from "antd";
 import { 
@@ -16,6 +17,8 @@ import {
   CloseCircleOutlined 
 } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
+
+const { Option } = Select;
 
 export default function SubmissionDetail() {
   const navigate = useNavigate();
@@ -31,19 +34,20 @@ export default function SubmissionDetail() {
 
   // Fake exam info
   const examInfo = {
-    examCode: `EX-${semester}-${examId}`,
+    examCode: "EX-2025-FA-SE",
     examName: "Software Engineering Final",
-    semester,
+    semester: "FA25",
   };
 
-  // Submission info (manager UI)
+  // ===========================
+  // Submission info
+  // ===========================
   const [submissionInfo, setSubmissionInfo] = useState({
     fileUrl: "https://example.com/submissions/SE15021.zip",
     violations: ["Late Submission", "Incorrect Naming Convention"],
     examinerName: "Dr. Alice Johnson",
     gradedAt: "2025-01-14 14:32",
     isFinalized: false,
-    status: "Graded",
     gradingAttempts: [
       {
         attempt: 1,
@@ -63,24 +67,26 @@ export default function SubmissionDetail() {
   });
 
   // ===========================
-  // FINALIZE SUBMISSION
+  // Assign Lecturer
   // ===========================
-  const handleFinalize = () => {
-    Modal.confirm({
-      title: "Finalize Submission",
-      content:
-        "After finalizing, the submission will be approved and locked from further changes.",
-      okText: "Finalize",
-      okType: "primary",
-      onOk: () => {
-        setSubmissionInfo({
-          ...submissionInfo,
-          isFinalized: true,
-          status: "Approved"
-        });
-        message.success("Submission approved successfully.");
-      }
+  const lecturers = [
+    "Dr. Alice Johnson",
+    "Mr. Bob Smith",
+    "Charlie Brown",
+    "Ms. Emily Lee"
+  ];
+
+  const [assignVisible, setAssignVisible] = useState(false);
+  const [assignedLecturer, setAssignedLecturer] = useState(submissionInfo.examinerName);
+
+  const handleSaveAssign = () => {
+    setSubmissionInfo({
+      ...submissionInfo,
+      examinerName: assignedLecturer
     });
+
+    message.success(`Lecturer assigned: ${assignedLecturer}`);
+    setAssignVisible(false);
   };
 
   return (
@@ -90,17 +96,17 @@ export default function SubmissionDetail() {
         type="text"
         icon={<ArrowLeftOutlined />}
         style={{ marginBottom: 20 }}
-        onClick={() => navigate(`/moderator/submissions/${semester}/${examId}`)}
+        onClick={() => navigate(`/manager/submissions/${semester}/${examId}`)}
       >
         Back to Submissions
       </Button>
 
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>
-        Manager View — Submission #{id}
+      <h1 style={{ fontSize: 26, fontWeight: 600, marginBottom: 20 }}>
+        Submission Detail #{id}
       </h1>
 
       <Space direction="vertical" size={24} style={{ width: "100%" }}>
-        
+
         {/* Student Info */}
         <Card title="Student Information" bordered style={{ borderRadius: 12 }}>
           <Descriptions column={2}>
@@ -127,61 +133,49 @@ export default function SubmissionDetail() {
           style={{ borderRadius: 12 }}
           extra={
             <Space>
-              {/* FINALIZE button */}
-              <Button 
-                type="primary"
-                icon={<CheckCircleOutlined />}
-                onClick={handleFinalize}
-                disabled={submissionInfo.isFinalized}
-              >
-                {submissionInfo.isFinalized ? "Approved" : "Finalize"}
+              {/* Assign Lecturer */}
+              <Button onClick={() => setAssignVisible(true)}>
+                Assign Lecturer
               </Button>
             </Space>
           }
         >
           <Descriptions column={1}>
-            {/* File URL */}
             <Descriptions.Item label="File URL">
               <a href={submissionInfo.fileUrl} target="_blank" rel="noopener noreferrer">
                 <FileOutlined /> Download Submission
               </a>
             </Descriptions.Item>
 
-            {/* Violations */}
             <Descriptions.Item label="Violations">
               {submissionInfo.violations.length === 0 ? (
                 <Tag color="green">None</Tag>
               ) : (
-                submissionInfo.violations.map((v, i) => (
-                  <Tag key={i} color="red">{v}</Tag>
+                submissionInfo.violations.map((v, idx) => (
+                  <Tag color="red" key={idx}>{v}</Tag>
                 ))
               )}
             </Descriptions.Item>
 
-            {/* Examiner */}
-            <Descriptions.Item label="Current Examiner">
+            <Descriptions.Item label="Examiner">
               {submissionInfo.examinerName}
             </Descriptions.Item>
 
-            {/* Status */}
-            <Descriptions.Item label="Status">
+            <Descriptions.Item label="Is Finalized?">
               {submissionInfo.isFinalized ? (
-                <Tag color="green" icon={<CheckCircleOutlined />}>Approved</Tag>
+                <Tag color="green" icon={<CheckCircleOutlined />}>Finalized</Tag>
               ) : (
-                <Tag color="orange" icon={<CloseCircleOutlined />}>
-                  {submissionInfo.status}
-                </Tag>
+                <Tag color="orange" icon={<CloseCircleOutlined />}>Not Finalized</Tag>
               )}
             </Descriptions.Item>
 
-            {/* Graded At */}
-            <Descriptions.Item label="Last Graded At">
+            <Descriptions.Item label="Latest Graded At">
               {submissionInfo.gradedAt}
             </Descriptions.Item>
           </Descriptions>
 
           {/* Grading Attempts */}
-          <h3 style={{ marginTop: 25, marginBottom: 10 }}>Grading Attempts</h3>
+          <h3 style={{ marginTop: 20, marginBottom: 10 }}>Grading Attempts</h3>
 
           <List
             bordered
@@ -201,6 +195,29 @@ export default function SubmissionDetail() {
           />
         </Card>
       </Space>
+
+      {/* Assign Lecturer Modal */}
+      <Modal
+        centered
+        open={assignVisible}
+        title="Assign Lecturer"
+        okText="Save"
+        onOk={handleSaveAssign}
+        onCancel={() => setAssignVisible(false)}
+      >
+        <p>Select a lecturer:</p>
+        <Select
+          style={{ width: "100%" }}
+          value={assignedLecturer}
+          onChange={setAssignedLecturer}
+        >
+          {lecturers.map((lec) => (
+            <Option key={lec} value={lec}>
+              {lec}
+            </Option>
+          ))}
+        </Select>
+      </Modal>
     </div>
   );
 }
