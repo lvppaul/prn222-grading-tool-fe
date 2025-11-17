@@ -17,8 +17,10 @@ export default function LoginPage() {
     console.log("oke sau khi login");
     if (res.success) {
       const role = localStorage.getItem("role");
-      if (role === "examiner") navigate("/examiner");
-      else if (role === "lecturer") navigate("/lecturer");
+      if (role === "Examiner") navigate("/examiner");
+      else if (role === "Moderator") navigate("/moderator/semesters");
+      else if (role === "Manager") navigate("/manager/semesters");
+      else if (role === "Admin") navigate("/admin");
       else navigate("/");
     } else {
       message.error("Login failed");
