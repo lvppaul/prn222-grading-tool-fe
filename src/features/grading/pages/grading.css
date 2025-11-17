@@ -1,0 +1,82 @@
+/* Root layout */
+.grading-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+/* Header */
+.grading-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+/* Split body */
+.grading-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* LEFT SIDE (Files + Code) */
+.left-pane {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid #e5e7eb;
+  background: #ffffff; /* light to match UI */
+}
+
+/* Inner split: files (20%) + code (80%) */
+.left-inner {
+  display: flex;
+  height: 100%;
+}
+
+.files-pane {
+  width: 26%;
+  background: #f9fafb;
+  border-right: 1px solid #e5e7eb;
+  overflow-y: auto;
+}
+
+.code-pane {
+  flex: 1;
+  background: #1e1e1e;
+  overflow: hidden;
+}
+
+/* Divider */
+.divider {
+  width: 6px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background 0.2s;
+}
+.divider:hover,
+.grading-body.dragging .divider {
+  background: #3b82f6;
+}
+
+/* RIGHT SIDE (Grading panel) */
+.right-pane {
+  height: 100%;
+  overflow-y: auto;
+  background: #fff;
+  padding: 20px;
+}
+
+.grading-header {
+  padding: 14px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
+  z-index: 0;     /* ⬆️ Đảm bảo luôn nằm trên */
+  position: sticky; /* Giữ topbar cố định khi scroll */
+  top: 0;
+}
