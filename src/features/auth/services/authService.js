@@ -4,13 +4,17 @@ import { setTokens, clearTokens, getRoleFromToken } from "../utils/authUtils";
 export const authService = {
   login: async (data) => {
     console.log("login data", data);
-    // API can return tokens under `data` or `payload` depending on backend
-    const res = await axiosClient.post("/Authentication/login", data);
+    const res = await axiosClient.post("/auth/login", data);
     const body = res.data;
-    // prefer body.payload, fallback to body.data
-    const tokenContainer = body?.payload || body?.data || {};
+
+    // New API structure: { payload: { accessToken, refreshToken }, status, message }
+    const tokenContainer = body?.payload || {};
     const accessToken = tokenContainer?.accessToken;
     const refreshToken = tokenContainer?.refreshToken;
+
+    if (!accessToken) {
+      return { success: false, message: body?.message || "Login failed" };
+    }
 
     // persist tokens using helper
     setTokens({ accessToken, refreshToken });
@@ -23,16 +27,28 @@ export const authService = {
       // ignore
     }
 
-    return body;
+    return {
+      success: true,
+      message: body?.message || "Login successful",
+      data: body,
+    };
   },
 
   register: async (data) => {
     console.log("register data", data);
-    const res = await axiosClient.post("/Authentication/register", data);
+    const res = await axiosClient.post("/auth/register", data);
     const body = res.data;
-    const tokenContainer = body?.payload || body?.data || {};
+
+    const tokenContainer = body?.payload || {};
     const accessToken = tokenContainer?.accessToken;
     const refreshToken = tokenContainer?.refreshToken;
+
+    if (!accessToken) {
+      return {
+        success: false,
+        message: body?.message || "Registration failed",
+      };
+    }
 
     setTokens({ accessToken, refreshToken });
 
@@ -43,7 +59,11 @@ export const authService = {
       // ignore
     }
 
-    return body;
+    return {
+      success: true,
+      message: body?.message || "Registration successful",
+      data: body,
+    };
   },
 
   logout: async () => {
@@ -51,7 +71,7 @@ export const authService = {
     try {
       const accessToken = localStorage.getItem("accessToken");
       const refreshToken = localStorage.getItem("refreshToken");
-      await axiosClient.post("/Authentication/logout", {
+      await axiosClient.post("/auth/logout", {
         accessToken,
         refreshToken,
       });
