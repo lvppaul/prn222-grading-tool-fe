@@ -4,6 +4,8 @@ import {
   DashboardOutlined,
   FileSearchOutlined,
   SettingOutlined,
+  ClockCircleOutlined,
+  UsergroupAddOutlined,
 } from "@ant-design/icons";
 
 export default function ManagerSidebarMenu({ collapsed }) {
@@ -12,6 +14,8 @@ export default function ManagerSidebarMenu({ collapsed }) {
 
   const items = [
     { key: "/manager/semesters", icon: <FileSearchOutlined />, label: "Submissions" },
+    { key: "/manager/extracted", icon: <ClockCircleOutlined />, label: "Extracted" },
+    { key: "/manager/assign-by-class", icon: <UsergroupAddOutlined />, label: "Assign by Class" },
   ];
 
   // Correct match for nested routes
