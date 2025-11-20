@@ -26,6 +26,7 @@ import ExaminerDashboard from "./features/examiner/pages/ExaminerDashboard";
 import ExaminerSubmissions from "./features/examiner/pages/ExaminerSubmissions";
 import ExaminerGrading from "./features/examiner/pages/ExaminerGrading";
 import ExtractedSubmissions from "./features/manager/pages/ExtractedSubmissions";
+import GradedSubmissionsManagement from "./features/manager/pages/GradedSubmissionsManagement";
 import UploadSubmissions from "./features/admin/pages/UploadSubmissions";
 import StudentManagement from "./features/admin/pages/StudentManagement";
 import AssignByClass from "./features/manager/pages/AssignByClass";
@@ -92,6 +93,7 @@ export default function App() {
             </RoleBasedRoute>
           }
         >
+          <Route index element={<ExtractedSubmissions />} />
           <Route path="semesters" element={<ManagerSemesterDashboard />} />
           <Route path="exams/:semester" element={<ManagerExamDashboard />} />
           <Route
@@ -103,6 +105,7 @@ export default function App() {
             element={<ManagerSubmissionsDetail />}
           />
           <Route path="extracted" element={<ExtractedSubmissions />} />
+          <Route path="graded-submissions" element={<GradedSubmissionsManagement />} />
           <Route path="assign-by-class" element={<AssignByClass />} />
         </Route>
 

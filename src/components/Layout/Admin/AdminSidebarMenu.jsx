@@ -1,5 +1,5 @@
 import { Layout, Menu } from "antd";
-import { FileTextOutlined, UploadOutlined, CloudUploadOutlined, PlusOutlined, TeamOutlined } from "@ant-design/icons";
+import { FileTextOutlined, UploadOutlined, CloudUploadOutlined, PlusOutlined, TeamOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function AdminSidebarMenu() {
@@ -30,6 +30,12 @@ export default function AdminSidebarMenu() {
       icon: <TeamOutlined />,
       label: "Student Management",
       onClick: () => navigate("/admin/students"),
+    },
+    {
+      key: "/admin/submissions",
+      icon: <FolderOpenOutlined />,
+      label: "Submission Management",
+      onClick: () => navigate("/admin/submissions"),
     },
   ];
 
