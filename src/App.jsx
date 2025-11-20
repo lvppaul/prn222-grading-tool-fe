@@ -3,7 +3,6 @@ import LoginPage from "./features/auth/pages/LoginPage";
 
 import ProtectedRoute from "./router/ProtectedRoute";
 import RoleBasedRoute from "./router/RoleBasedRoute";
-import ExaminerDashboard from "./features/exams/pages/ExaminerDashboard";
 import LecturerDashboard from "./features/grading/pages/LecturerDashboard";
 import StatisticsPage from "./features/statistics/pages/StatisticsPage";
 import Layout from "./components/Layout/Layout";
@@ -19,6 +18,17 @@ import ManagerSemesterDashboard from "./features/manager/pages/ManagerSemesterDa
 import ManagerExamDashboard from "./features/manager/pages/ManagerExamDashboard";
 import ManagerSubmissions from "./features/manager/pages/ManagerSubmissions";
 import ManagerSubmissionsDetail from "./features/manager/pages/SubmissionDetail";
+import CreateExamPage from "./features/admin/pages/CreateExamPage";
+import AdminLayout from "./components/Layout/Admin/AdminLayout";
+import AdminDashboard from "./features/admin/pages/AdminDashboard";
+import ExaminerLayout from "./components/Layout/Examiner/ExaminerLayout";
+import ExaminerDashboard from "./features/examiner/pages/ExaminerDashboard";
+import ExaminerSubmissions from "./features/examiner/pages/ExaminerSubmissions";
+import ExaminerGrading from "./features/examiner/pages/ExaminerGrading";
+import ExtractedSubmissions from "./features/manager/pages/ExtractedSubmissions";
+import UploadSubmissions from "./features/admin/pages/UploadSubmissions";
+import StudentManagement from "./features/admin/pages/StudentManagement";
+import AssignByClass from "./features/manager/pages/AssignByClass";
 
 export default function App() {
   return (
@@ -32,24 +42,13 @@ export default function App() {
           path="/examiner"
           element={
             <RoleBasedRoute allowedRoles={["Examiner"]}>
-              <Layout>
-                <ExaminerDashboard />
-              </Layout>
+              <ExaminerLayout />
             </RoleBasedRoute>
           }
-        />
-
-        {/* Examiner - Grading */}
-        <Route
-          path="/examiner/grading"
-          element={
-            // <RoleBasedRoute allowedRoles={["Examiner"]}>
-            <LecturerLayout />
-            // </RoleBasedRoute>
-          }
         >
-          <Route index element={<LecturerDashboard />} />
-          <Route path="grading" element={<GradingPage />} />
+          <Route path="dashboard" element={<ExaminerDashboard />} />
+          <Route path="submissions" element={<ExaminerSubmissions />} />
+          <Route path="grading/:submissionId" element={<ExaminerGrading />} />
         </Route>
 
         <Route
@@ -103,6 +102,23 @@ export default function App() {
             path="submissions/:semester/:examId/:id"
             element={<ManagerSubmissionsDetail />}
           />
+          <Route path="extracted" element={<ExtractedSubmissions />} />
+          <Route path="assign-by-class" element={<AssignByClass />} />
+        </Route>
+
+        {/* Admin */}
+        <Route
+          path="/admin"
+          element={
+            <RoleBasedRoute allowedRoles={["Admin"]}>
+              <AdminLayout />
+            </RoleBasedRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="exams/create" element={<CreateExamPage />} />
+          <Route path="upload-submissions" element={<UploadSubmissions />} />
+          <Route path="students" element={<StudentManagement />} />
         </Route>
 
         {/* Default */}
