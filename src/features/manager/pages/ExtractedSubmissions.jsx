@@ -34,6 +34,7 @@ export default function ExtractedSubmissions() {
   const [selectedExaminerId, setSelectedExaminerId] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [examFilter, setExamFilter] = useState("All");
+  const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
     loadSubmissions();
@@ -41,12 +42,18 @@ export default function ExtractedSubmissions() {
 
   const loadSubmissions = async () => {
     try {
+      message.loading({ content: "Loading submissions...", key: "load" });
       const response = await getExtractedSubmissions();
       const submissionList = response?.payload || [];
       setSubmissions(Array.isArray(submissionList) ? submissionList : []);
+      message.success({ content: "Submissions loaded successfully!", key: "load", duration: 2 });
     } catch (err) {
       console.error("Error loading extracted submissions:", err);
-      message.error(err?.Message || "Failed to load extracted submissions");
+      message.error({ 
+        content: err?.Message || "Failed to load extracted submissions", 
+        key: "load",
+        duration: 3 
+      });
     }
   };
 
@@ -75,18 +82,30 @@ export default function ExtractedSubmissions() {
       return;
     }
 
+    setAssigning(true);
     try {
+      message.loading({ content: "Assigning submissions...", key: "assign" });
       await assignSubmissions({
         examinerId: selectedExaminerId,
         submissionIds: selectedRowKeys,
       });
-      message.success(`Assigned ${selectedRowKeys.length} submissions successfully!`);
+      message.success({ 
+        content: `Assigned ${selectedRowKeys.length} submissions successfully!`, 
+        key: "assign",
+        duration: 3 
+      });
       setAssignModalVisible(false);
       setSelectedRowKeys([]);
       setSelectedExaminerId(null);
       loadSubmissions();
     } catch (err) {
-      message.error(err?.Message || "Failed to assign submissions");
+      message.error({ 
+        content: err?.Message || "Failed to assign submissions", 
+        key: "assign",
+        duration: 3 
+      });
+    } finally {
+      setAssigning(false);
     }
   };
 
@@ -262,6 +281,7 @@ export default function ExtractedSubmissions() {
         }}
         okText="Assign"
         cancelText="Cancel"
+        confirmLoading={assigning}
       >
         <p>You are about to assign {selectedRowKeys.length} submissions.</p>
         <div style={{ marginTop: 16 }}>

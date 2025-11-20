@@ -6,6 +6,7 @@ import {
   SettingOutlined,
   ClockCircleOutlined,
   UsergroupAddOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 
 export default function ManagerSidebarMenu({ collapsed }) {
@@ -13,8 +14,8 @@ export default function ManagerSidebarMenu({ collapsed }) {
   const { pathname } = useLocation();
 
   const items = [
-    { key: "/manager/semesters", icon: <FileSearchOutlined />, label: "Submissions" },
     { key: "/manager/extracted", icon: <ClockCircleOutlined />, label: "Extracted" },
+    { key: "/manager/graded-submissions", icon: <CheckCircleOutlined />, label: "Graded Submissions" },
     { key: "/manager/assign-by-class", icon: <UsergroupAddOutlined />, label: "Assign by Class" },
   ];
 

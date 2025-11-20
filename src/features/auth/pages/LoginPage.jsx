@@ -19,7 +19,7 @@ export default function LoginPage() {
       const role = localStorage.getItem("role");
       if (role === "Examiner") navigate("/examiner");
       else if (role === "Moderator") navigate("/moderator/semesters");
-      else if (role === "Manager") navigate("/manager/semesters");
+      else if (role === "Manager") navigate("/manager/extracted");
       else if (role === "Admin") navigate("/admin");
       else navigate("/");
     } else {

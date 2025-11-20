@@ -7,14 +7,17 @@ import {
   LockOutlined,
   CheckOutlined,
   LoadingOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useExam } from "../../../features/admin/hooks/useExam";
+import { useExportScore } from "../hooks/useExportScore";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { getAllExams, loading, publishExam, closeExam } = useExam();
+  const { exportScoreAndDownload, isExporting } = useExportScore();
   const [exams, setExams] = useState([]);
   const [stats, setStats] = useState({
     total: 0,
@@ -75,6 +78,14 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleExportScore = async (record) => {
+    try {
+      await exportScoreAndDownload(record.id);
+    } catch (err) {
+      console.error("Export error:", err);
+    }
+  };
+
   const columns = [
     {
       title: "Exam Code",
@@ -129,16 +140,27 @@ export default function AdminDashboard() {
               {publishingId === record.id ? "Publishing..." : "Publish"}
             </Button>
           ) : record.status === "Published" || record.status === "Grading" || record.status === "Graded" || record.status === "Approved" ? (
-            <Button
-              type="default"
-              size="small"
-              icon={closingId === record.id ? <LoadingOutlined spin /> : <LockOutlined />}
-              loading={closingId === record.id}
-              onClick={() => handleClose(record)}
-              danger
-            >
-              {closingId === record.id ? "Closing..." : "Close"}
-            </Button>
+            <>
+              <Button
+                type="default"
+                size="small"
+                icon={closingId === record.id ? <LoadingOutlined spin /> : <LockOutlined />}
+                loading={closingId === record.id}
+                onClick={() => handleClose(record)}
+                danger
+              >
+                {closingId === record.id ? "Closing..." : "Close"}
+              </Button>
+              <Button
+                type="primary"
+                size="small"
+                icon={isExporting(record.id) ? <LoadingOutlined spin /> : <DownloadOutlined />}
+                loading={isExporting(record.id)}
+                onClick={() => handleExportScore(record)}
+              >
+                {isExporting(record.id) ? "Exporting..." : "Export điểm"}
+              </Button>
+            </>
           ) : null}
         </Space>
       ),
