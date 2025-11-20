@@ -15,12 +15,14 @@ import {
   Space,
   Tag,
   Statistic,
+  Modal,
 } from "antd";
 import {
   FileTextOutlined,
   UserOutlined,
   ArrowLeftOutlined,
   CheckCircleOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { useSubmission } from "../hooks/useSubmission";
 
@@ -29,12 +31,14 @@ const { Title, Text } = Typography;
 export default function ExaminerGrading() {
   const { submissionId } = useParams();
   const navigate = useNavigate();
-  const { getGradingForm, getGradingBySubmission, submitGrading, loading } =
+  const { getGradingForm, getGradingBySubmission, submitGrading, rejectSubmission, loading } =
     useSubmission();
 
   const [form] = Form.useForm();
   const [gradingForm, setGradingForm] = useState(null);
   const [existingGrading, setExistingGrading] = useState(null);
+  const [rejectModalVisible, setRejectModalVisible] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
 
   useEffect(() => {
     if (submissionId) {
@@ -121,6 +125,8 @@ export default function ExaminerGrading() {
     });
   };
 
+  const isReadonly = !!existingGrading;
+
   // Convert rubric (parent + children) from API to flat grading items
   const itemsArray = useMemo(() => {
     const rubricItems = gradingForm?.rubric?.rubricItems || [];
@@ -198,6 +204,24 @@ export default function ExaminerGrading() {
     }
   };
 
+  const handleRejectSubmit = async () => {
+    if (!rejectReason.trim()) {
+      message.warning("Vui lòng nhập lý do vi phạm");
+      return;
+    }
+
+    try {
+      await rejectSubmission(submissionId, rejectReason);
+      message.success("Đã đánh dấu vi phạm thành công");
+      setRejectModalVisible(false);
+      setRejectReason("");
+      navigate(-1);
+    } catch (err) {
+      console.error("Error rejecting submission:", err);
+      message.error("Không thể đánh dấu vi phạm");
+    }
+  };
+
   const totalScore = useMemo(() => {
     if (!itemsArray.length) return 0;
     const values = form.getFieldValue("items") || {};
@@ -217,14 +241,22 @@ export default function ExaminerGrading() {
 
   return (
     <div style={{ padding: 24 }}>
-      <Button
-        type="link"
-        icon={<ArrowLeftOutlined />}
-        onClick={() => navigate(-1)}
-        style={{ marginBottom: 16 }}
-      >
-        Back to submissions
-      </Button>
+      <Space style={{ marginBottom: 16 }}>
+        <Button
+          type="link"
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate(-1)}
+        >
+          Back to submissions
+        </Button>
+        <Button
+          danger
+          icon={<CloseOutlined />}
+          onClick={() => setRejectModalVisible(true)}
+        >
+          Đánh dấu vi phạm
+        </Button>
+      </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={16}>
@@ -243,6 +275,7 @@ export default function ExaminerGrading() {
             <Space>
               <FileTextOutlined />
               <Text>{gradingForm?.rubric?.name || "Exam"}</Text>
+              {existingGrading && <Tag color="green">ĐÃ CHẤM</Tag>}
             </Space>
             {gradingForm?.submission?.fileUrl && (
               <Text>
@@ -257,10 +290,10 @@ export default function ExaminerGrading() {
         <Col span={8}>
           <Card>
             <Statistic
-              title="Total Score"
+              title={isReadonly ? "Total Score (đã chấm)" : "Total Score"}
               value={totalScore}
               precision={2}
-              valueStyle={{ color: "#52c41a" }}
+              valueStyle={{ color: isReadonly ? "#595959" : "#52c41a" }}
             />
           </Card>
         </Col>
@@ -272,6 +305,7 @@ export default function ExaminerGrading() {
           layout="vertical"
           onFinish={handleSubmit}
           initialValues={{ overallComment: "" }}
+          disabled={isReadonly}
         >
           <Title level={4}>Rubric</Title>
           <Divider />
@@ -282,7 +316,6 @@ export default function ExaminerGrading() {
                 <Title level={5} style={{ margin: 0 }}>
                   {group.code ? `${group.code} - ${group.title}` : group.title}
                 </Title>
-                {/* Tổng điểm của group đã nằm trong title, ví dụ (1.0), nên không cần weight riêng */}
               </Space>
 
               {group.items.map((item, indexInGroup) => {
@@ -293,26 +326,28 @@ export default function ExaminerGrading() {
                 return (
                   <Card
                     key={item.rubricItemId || `${groupIndex}-${indexInGroup}`}
-                    style={{ marginBottom: 12, background: "#fafafa" }}
+                    style={{ marginBottom: 8, background: "#fafafa" }}
                   >
-                    <Row gutter={16}>
-                      <Col span={12}>
-                        <Space direction="vertical" size={4}>
-                          <Text strong>{item.name}</Text>
-                          {item.subTitle && (
-                            <Text type="secondary">{item.subTitle}</Text>
-                          )}
-                          {item.description && (
-                            <Text type="secondary">{item.description}</Text>
-                          )}
-                          <Text type="secondary">
-                            Max: <strong>{item.maxScore}</strong>
-                          </Text>
-                        </Space>
+                    <Row gutter={12} align="top">
+                      <Col span={4}>
+                        <Text strong>{item.code}</Text>
+                        <br />
+                        <Text type="secondary">Max: {item.maxScore}</Text>
                       </Col>
-                      <Col span={12}>
+                      <Col span={10}>
+                        <Text strong>{item.name}</Text>
+                        {item.description && (
+                          <Typography.Paragraph
+                            type="secondary"
+                            style={{ marginBottom: 0, whiteSpace: "pre-line" }}
+                          >
+                            {item.description}
+                          </Typography.Paragraph>
+                        )}
+                      </Col>
+                      <Col span={4}>
                         <Form.Item
-                          label={`Score (0 - ${item.maxScore})`}
+                          label="Score"
                           name={["items", globalIndex, "score"]}
                           rules={[
                             {
@@ -345,7 +380,8 @@ export default function ExaminerGrading() {
                             style={{ width: "100%" }}
                           />
                         </Form.Item>
-
+                      </Col>
+                      <Col span={6}>
                         <Form.Item
                           label="Comment"
                           name={["items", globalIndex, "comment"]}
@@ -365,22 +401,45 @@ export default function ExaminerGrading() {
 
           <Divider />
 
-          <Form.Item label="Overall Comment" name="overallComment">
+          <Form.Item label="Nhận xét chung" name="overallComment">
             <Input.TextArea rows={4} placeholder="Overall feedback for this submission" />
           </Form.Item>
 
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              icon={<CheckCircleOutlined />}
-              loading={loading}
-            >
-              Submit Grading
-            </Button>
-          </Form.Item>
+          {!isReadonly && (
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<CheckCircleOutlined />}
+                loading={loading}
+              >
+                Submit Grading
+              </Button>
+            </Form.Item>
+          )}
         </Form>
       </Card>
+
+      {/* Reject Modal */}
+      <Modal
+        title="Đánh dấu vi phạm"
+        open={rejectModalVisible}
+        onOk={handleRejectSubmit}
+        onCancel={() => {
+          setRejectModalVisible(false);
+          setRejectReason("");
+        }}
+        okText="Xác nhận"
+        cancelText="Hủy"
+        okButtonProps={{ danger: true }}
+      >
+        <Input.TextArea
+          rows={4}
+          placeholder="Nhập lý do vi phạm (bắt buộc)"
+          value={rejectReason}
+          onChange={(e) => setRejectReason(e.target.value)}
+        />
+      </Modal>
     </div>
   );
 }

@@ -40,4 +40,16 @@ export const submissionService = {
       throw error.response?.data || error.message;
     }
   },
+
+  // Reject submission with violation reason
+  rejectSubmission: async (submissionId, reason) => {
+    try {
+      const response = await axiosClient.post(`/submissions/${submissionId}/reject`, {
+        reason: reason
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };

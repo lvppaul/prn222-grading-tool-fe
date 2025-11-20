@@ -61,6 +61,20 @@ export const useSubmission = () => {
     }
   };
 
+  const rejectSubmission = async (submissionId, reason) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await submissionService.rejectSubmission(submissionId, reason);
+      setLoading(false);
+      return response;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  };
+
   return {
     loading,
     error,
@@ -68,5 +82,6 @@ export const useSubmission = () => {
     getGradingForm,
     submitGrading,
     getGradingBySubmission,
+    rejectSubmission,
   };
 };

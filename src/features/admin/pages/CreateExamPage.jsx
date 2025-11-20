@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Form, Input, Button, Upload, Select, message, Card, Spin, Row, Col } from 'antd';
+import { Form, Input, Button, Upload, Select, message, Card, Spin, Row, Col, notification } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { useExam } from '../hooks/useExam';
 
@@ -56,7 +56,11 @@ export default function CreateExamPage() {
 
     try {
       const response = await createExam(formData);
-      message.success('Tạo kì thi thành công!');
+      notification.success({
+        message: 'Tạo kì thi thành công',
+        description: `Mã: ${values.code} | Tên: ${values.name}`,
+        placement: 'topRight',
+      });
       form.resetFields();
       setRubricFileList([]);
       setStudentFileList([]);

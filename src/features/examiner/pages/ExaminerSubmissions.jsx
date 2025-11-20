@@ -11,7 +11,8 @@ import {
   Row,
   Col,
   Statistic,
-  Tabs
+  Tabs,
+  Input
 } from "antd";
 import { 
   CheckSquareOutlined, 
@@ -19,7 +20,8 @@ import {
   EyeOutlined,
   FileTextOutlined,
   ClockCircleOutlined,
-  CheckCircleOutlined
+  CheckCircleOutlined,
+  SearchOutlined
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useSubmission } from "../hooks/useSubmission";
@@ -30,6 +32,8 @@ export default function ExaminerSubmissions() {
   const navigate = useNavigate();
   const { getAssignedSubmissions, loading } = useSubmission();
   const [submissions, setSubmissions] = useState([]);
+  const [filteredSubmissions, setFilteredSubmissions] = useState([]);
+  const [searchText, setSearchText] = useState("");
   const [stats, setStats] = useState({
     total: 0,
     graded: 0,
@@ -46,6 +50,7 @@ export default function ExaminerSubmissions() {
       const list = response?.payload || response || [];
       const data = Array.isArray(list) ? list : [];
       setSubmissions(data);
+      setFilteredSubmissions(data);
       calculateStats(data);
     } catch (err) {
       console.error("Error loading submissions:", err);
@@ -85,6 +90,21 @@ export default function ExaminerSubmissions() {
       graded: graded,
       pending: submissions.length - graded,
     });
+  };
+
+  const handleSearch = (value) => {
+    setSearchText(value);
+    if (!value.trim()) {
+      setFilteredSubmissions(submissions);
+      calculateStats(submissions);
+      return;
+    }
+
+    const filtered = submissions.filter((submission) =>
+      submission.studentCode?.toLowerCase().includes(value.toLowerCase().trim())
+    );
+    setFilteredSubmissions(filtered);
+    calculateStats(filtered);
   };
 
   const handleTabChange = () => {};
@@ -143,10 +163,23 @@ export default function ExaminerSubmissions() {
     },
   ];
 
-  const currentSubmissions = submissions;
+  const currentSubmissions = filteredSubmissions;
 
   return (
     <div>
+      {/* Search Bar */}
+      <Card style={{ marginBottom: 16 }}>
+        <Input
+          placeholder="Tìm kiếm theo mã sinh viên (Student Code)"
+          prefix={<SearchOutlined />}
+          value={searchText}
+          onChange={(e) => handleSearch(e.target.value)}
+          allowClear
+          size="large"
+          style={{ width: "100%" }}
+        />
+      </Card>
+
       {/* Stats Cards */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={8}>

@@ -22,7 +22,6 @@ import CreateExamPage from "./features/admin/pages/CreateExamPage";
 import AdminLayout from "./components/Layout/Admin/AdminLayout";
 import AdminDashboard from "./features/admin/pages/AdminDashboard";
 import ExaminerLayout from "./components/Layout/Examiner/ExaminerLayout";
-import ExaminerDashboard from "./features/examiner/pages/ExaminerDashboard";
 import ExaminerSubmissions from "./features/examiner/pages/ExaminerSubmissions";
 import ExaminerGrading from "./features/examiner/pages/ExaminerGrading";
 import ExtractedSubmissions from "./features/manager/pages/ExtractedSubmissions";
@@ -46,7 +45,7 @@ export default function App() {
             </RoleBasedRoute>
           }
         >
-          <Route path="dashboard" element={<ExaminerDashboard />} />
+          <Route index element={<ExaminerSubmissions />} />
           <Route path="submissions" element={<ExaminerSubmissions />} />
           <Route path="grading/:submissionId" element={<ExaminerGrading />} />
         </Route>

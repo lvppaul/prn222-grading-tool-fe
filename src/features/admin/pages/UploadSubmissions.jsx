@@ -18,6 +18,7 @@ import {
   Statistic,
   Row,
   Col,
+  notification,
 } from "antd";
 import {
   UploadOutlined,
@@ -93,7 +94,12 @@ export default function UploadSubmissions() {
 
     try {
       const result = await uploadZipBatch(selectedExamId, file);
-      message.success(result.Message || "Upload successful!");
+      const examName = selectedExam?.name || selectedExamId;
+      notification.success({
+        message: "Upload bài thi thành công",
+        description: result.Message || `Kỳ thi: ${examName}`,
+        placement: "topRight",
+      });
       setUploadResult(result);
       setFileList([]);
     } catch (err) {
