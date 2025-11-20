@@ -29,6 +29,7 @@ import ExtractedSubmissions from "./features/manager/pages/ExtractedSubmissions"
 import GradedSubmissionsManagement from "./features/manager/pages/GradedSubmissionsManagement";
 import UploadSubmissions from "./features/admin/pages/UploadSubmissions";
 import StudentManagement from "./features/admin/pages/StudentManagement";
+import AdminSubmissionManagement from "./features/admin/pages/AdminSubmissionManagement";
 import AssignByClass from "./features/manager/pages/AssignByClass";
 
 export default function App() {
@@ -122,6 +123,7 @@ export default function App() {
           <Route path="exams/create" element={<CreateExamPage />} />
           <Route path="upload-submissions" element={<UploadSubmissions />} />
           <Route path="students" element={<StudentManagement />} />
+          <Route path="submissions" element={<AdminSubmissionManagement />} />
         </Route>
 
         {/* Default */}

@@ -10,7 +10,7 @@ export default function AdminSidebarMenu() {
     {
       key: "/admin",
       icon: <FileTextOutlined />,
-      label: "Dashboard",
+      label: "Exam Dashboard",
       onClick: () => navigate("/admin"),
     },
     {
